@@ -1,12 +1,10 @@
 import express from "express";
-import cors from "cors";
 import fetch from "node-fetch";
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 
-app.post("/generate-image", async (req, res) => {
+app.post("/api/generate-image", async (req, res) => {
   const { prompt } = req.body;
 
   if (!prompt) {
@@ -17,8 +15,8 @@ app.post("/generate-image", async (req, res) => {
     const response = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
         model: "gpt-image-1",
@@ -30,11 +28,8 @@ app.post("/generate-image", async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    console.error("OpenAI error:", error);
-    res.status(500).json({ error: "Image generation failed" });
+    res.status(500).json({ error: "Image generation failed", details: error.message });
   }
 });
 
-app.listen(3000, () => {
-  console.log("Proxy running");
-});
+export default app;
